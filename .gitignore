@@ -70,5 +70,5 @@ fastlane/test_output
 .idea
 
 # do not publish secrets to github
-Secrets.plist
+Twittermenti/Secrets.plist
 
