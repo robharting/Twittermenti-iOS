@@ -68,3 +68,7 @@ fastlane/test_output
 
 # idea
 .idea
+
+# do not publish secrets to github
+Secrets.plist
+
