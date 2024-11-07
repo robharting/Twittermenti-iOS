@@ -9,6 +9,7 @@
 import UIKit
 import Swifter
 import CoreML
+import SwiftyJSON
 
 class ViewController: UIViewController {
     
@@ -55,8 +56,8 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        print("api key: \(apiKey)")
-        print("api secret: \(apiSecret)")
+//        print("api key: \(apiKey)")
+//        print("api secret: \(apiSecret)")
         
         
         let prediction = try! sentimentClassier.prediction(text: "@Apple is the best company")
@@ -64,12 +65,51 @@ class ViewController: UIViewController {
         let prediction2 = try! sentimentClassier.prediction(text: "@Apple is a terrible company")
         print("Prediction: \(prediction2.label)")
         
-        // does not work woth free twitter dev account
-//        swifter.searchTweet(using: "@Apple", lang: "en", count: 100, tweetMode: .extended, success: { (results, metadata) in
-//            print("results: \(results)")
-//        }) { error in
-//            print("There was an error with the Twitter API request: \(error)")
-//        }
+        // does not work with free twitter dev account
+        swifter.searchTweet(using: "@Apple", lang: "en", count: 100, tweetMode: .extended, success: { (results, metadata) in
+            // print("results: \(results)")
+            
+            var tweets = [TweetSentimentClassifierInput]()
+            
+            for i in 0..<100 {
+                if let tweet = results[i]["full_text"].string {
+                    print(tweet)
+                    let tweetForClassification = TweetSentimentClassifierInput(text: tweet)
+                    tweets.append(tweetForClassification)
+                }
+            }
+            
+            do {
+                let predictions = try self.sentimentClassier.predictions(inputs: [<#T##TweetSentimentClassifierInput#>])
+                
+                var sentimentScore = 0
+                
+                for prediction in predictions {
+//                    print(prediction.label)
+                    let sentiment = prediction.label
+                    
+                    if sentiment == "Pos" {
+                        sentimentScore += 1
+                    } else if sentiment == "Neg" {
+                        sentimentScore -= 1
+                    }
+                }
+                
+                print("SentimentScore: \(sentimentScore)")
+                
+                
+            }catch{
+                print("There was an error with making a prediction: \(error)")
+            }
+            
+            
+            // print(tweets)
+            
+           
+            
+        }) { error in
+            print("There was an error with the Twitter API request: \(error)")
+        }
     
         
     }
